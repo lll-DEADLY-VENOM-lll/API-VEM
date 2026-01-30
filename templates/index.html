@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stranger API Service</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fefcff, #f1f9ff, #fff8fa);
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem;
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+      position: relative;
+      margin-bottom: 3rem;
+      border: 2px solid #f0f4ff;
+    }
+
+    .header .logo {
+      font-size: 3rem;
+      background: linear-gradient(45deg, #00c6ff, #ff5ef9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+      color: #222;
+    }
+
+    .header .lead {
+      font-size: 1.1rem;
+      color: #666;
+    }
+
+    .api-version {
+      margin-top: 1rem;
+    }
+
+    .badge-api {
+      display: inline-block;
+      background: linear-gradient(45deg, #ff5ef9, #00c6ff);
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Section Titles */
+    h2, h3, h4 {
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: #222;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    /* Endpoint Cards */
+    .endpoint {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 20px;
+      border: 2px solid #f2f6ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .endpoint:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .method {
+      font-size: .85rem;
+      font-weight: 700;
+      padding: .2rem .7rem;
+      border-radius: 6px;
+      margin-right: .5rem;
+    }
+    .method.get {
+      background: #e0f7ff;
+      color: #00aaff;
+    }
+
+    code {
+      background: #f7faff;
+      padding: .3rem .6rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: .9rem;
+      color: #444;
+    }
+
+    pre {
+      background: #fbfcff;
+      border-radius: 14px;
+      padding: 1rem;
+      font-size: .9rem;
+      color: #111;
+      border: 1px solid #edf1fa;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    /* Features Card */
+    .features-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 2px solid #f3f6ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .features-list li {
+      margin: .7rem 0;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .95rem;
+      color: #444;
+    }
+    .features-list i {
+      background: linear-gradient(45deg, #ff5ef9, #00c6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Demo Section */
+    .demo-section {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 2px solid #f2f5ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+    }
+
+    .form-control {
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      padding: .7rem;
+    }
+
+    .btn {
+      border-radius: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, #00c6ff, #ff5ef9);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    /* Floating Notes + Bubbles */
+    .floating-elements {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .floating-element.note {
+      position: absolute;
+      font-size: 20px;
+      color: rgba(0,0,0,0.06);
+      animation: float 10s infinite linear;
+    }
+    .floating-element.note::before {
+      content: "🎵";
+    }
+
+    .floating-element.bubble {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: rgba(0,123,255,0.08);
+      animation: bubbleFloat 15s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+      50% { transform: translateY(-50px) rotate(20deg); opacity: 0.9; }
+      100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+    }
+
+    @keyframes bubbleFloat {
+      0% { transform: translateY(0) scale(1); opacity: 0.4; }
+      50% { transform: translateY(-120px) scale(1.2); opacity: 0.7; }
+      100% { transform: translateY(0) scale(1); opacity: 0.4; }
+    }
+
+    /* Footer */
+    .credit {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: .9rem;
+      color: #666;
+    }
+    .credit a {
+      text-decoration: none;
+      font-weight: 600;
+      background: linear-gradient(45deg, #ff5ef9, #00c6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Admin floating button */
+    .admin-link {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #00c6ff, #ff5ef9);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease;
+    }
+    .admin-link:hover {
+      transform: scale(1.1) rotate(10deg);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <i class="fab fa-youtube"></i>
+      </div>
+      <h1>Stranger API Service</h1>
+      <p class="lead">Ultra-fast, Reliable YouTube API with Anti-Bot Protection</p>
+      <div class="api-version">
+        <span class="badge-api">API Version 2.0</span>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <h2><i class="fas fa-book me-2"></i>API Documentation</h2>
+        <p class="mb-4">This API Provides Seamless Access to YouTube Content While Avoiding All Bot Detection Mechanisms.</p>
+
+        <div class="endpoint">
+          <h3><span class="method get">GET</span>/search</h3>
+          <p>Main Endpoint to Search or Get Video Information</p>
+          <h4>Parameters:</h4>
+          <ul>
+            <li><code>query</code> - YouTube URL, video ID, or Search Term</li>
+            <li><code>video</code> - Boolean to Get Video Stream (default: false)</li>
+            <li><code>api_key</code> - Your API key (use <code>shivu</code> for testing)</li>
+          </ul>
+          <div class="example">
+            <h5><i class="fas fa-code me-2"></i>Example:</h5>
+            <pre>/search?query=295&video=false&api_key=shivu</pre>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <h3><span class="method get">GET</span>/stream/:id</h3>
+          <p>Stream Media Directly From YouTube</p>
+          <p><i class="fas fa-info-circle me-2"></i>This Endpoint is Used Internally By The API to Stream Media. You Should Not Call it Directly.</p>
+        </div>
+
+        <h2 class="mt-5"><i class="fas fa-reply me-2"></i>Example Response</h2>
+        <pre class="response-example p-4">
+{
+  "id": "n_FCrCQ6-bA",
+  "title": "295 (Official Audio) | Sidhu Moose Wala | The Kidd | Moosetape",
+  "duration": 273,
+  "link": "https://www.youtube.com/watch?v=n_FCrCQ6-bA",
+  "channel": "Sidhu Moose Wala",
+  "views": 705107430,
+  "thumbnail": "https://i.ytimg.com/vi_webp/n_FCrCQ6-bA/maxresdefault.webp",
+  "stream_url": "http://example.com/stream/cd97fd73-2ee0-4896-a1a6-f93145a893d3",
+  "stream_type": "Audio"
+}
+        </pre>
+        <div class="floating-elements"></div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="features-card">
+          <h3 class="card-title mb-4"><i class="fas fa-bolt me-2"></i>Features</h3>
+          <ul class="features-list">
+            <li><i class="fas fa-tachometer-alt"></i>Ultra-Fast Search & Play (0.5s response time)</li>
+            <li><i class="fas fa-stream"></i>Seamless Audio/Video Streaming</li>
+            <li><i class="fas fa-broadcast-tower"></i>Live Stream Support</li>
+            <li><i class="fas fa-cookie-bite"></i>No cookies, No Headaches</li>
+            <li><i class="fas fa-infinity"></i>Play Anything — With No Limits!</li>
+          </ul>
+
+          <h4 class="mt-4 mb-3"><i class="fas fa-cogs me-2"></i>Optimized For</h4>
+          <ul class="features-list">
+            <li><i class="fab fa-telegram"></i>Pyrogram, Telethon, TGCalls Bots</li>
+            <li><i class="fas fa-code"></i>PyTube & YTDl-free Engine</li>
+            <li><i class="fas fa-server"></i>24/7 Uptime With Stable Performance</li>
+          </ul>
+        </div>
+
+        <div class="demo-section">
+          <h3 class="mb-4"><i class="fas fa-flask me-2"></i>Try it Out</h3>
+          <div class="mb-3">
+            <label for="demoUrl" class="form-label">YouTube URL or Search Term:</label>
+            <input type="text" class="form-control" id="demoUrl" placeholder="Enter URL or search term">
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="demoVideo">
+            <label class="form-check-label" for="demoVideo">Get video (instead of audio)</label>
+          </div>
+          <button type="button" class="btn btn-primary w-100" id="testApiBtn"><i class="fas fa-play me-2"></i>Test API</button>
+
+          <div class="mt-4" id="resultContainer" style="display: none;">
+            <h4><i class="fas fa-file-code me-2"></i>Result:</h4>
+            <pre id="resultPre" class="p-3 mt-2" style="overflow-x: auto;"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="credit">
+      <p class="mb-0">Developed by <a href="https://t.me/AmShashank" target="_blank"><i class="fab fa-telegram"></i> @SHASHANK</a></p>
+    </div>
+  </div>
+
+  <!-- Admin Link (hidden, only visible to admins) -->
+  <a href="/admin" class="admin-link" id="adminLink" style="display: none;">
+    <i class="fas fa-lock"></i>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const testApiBtn = document.getElementById('testApiBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultPre = document.getElementById('resultPre');
+    const adminLink = document.getElementById('adminLink');
+
+    // ✅ Check if admin key cookie exists
+    function checkAdminAccess() {
+      const adminKeyInUrl = new URLSearchParams(window.location.search).get('admin_key');
+      if (adminKeyInUrl === 'SHUKLA') {
+        adminLink.style.display = 'flex';
+        document.cookie = "admin_access=true; path=/;";
+      } else if (document.cookie.includes('admin_access=true')) {
+        adminLink.style.display = 'flex';
+      }
+    }
+    checkAdminAccess();
+
+    // ✅ Demo API Testing
+    testApiBtn.addEventListener('click', function() {
+      const url = document.getElementById('demoUrl').value.trim();
+      const isVideo = document.getElementById('demoVideo').checked;
+
+      if (!url) {
+        alert('Please enter a YouTube URL or search term');
+        return;
+      }
+
+      testApiBtn.disabled = true;
+      testApiBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+
+      const apiUrl = `/search?q=${encodeURIComponent(url)}&video=${isVideo}&api_key=stranger`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          resultPre.textContent = JSON.stringify(data, null, 2);
+          resultContainer.style.display = 'block';
+          testApiBtn.disabled = false;
+          testApiBtn.innerHTML = '<i class="fas fa-play me-2"></i>Test API';
+          resultContainer.scrollIntoView({behavior: 'smooth'});
+        })
+        .catch(error => {
+          resultPre.textContent = 'Error: ' + error;
+          resultContainer.style.display = 'block';
+          testApiBtn.disabled = false;
+          testApiBtn.innerHTML = '<i class="fas fa-play me-2"></i>Test API';
+        });
+    });
+
+    // ✅ Default search value
+    if (document.getElementById('demoUrl').value === '') {
+      document.getElementById('demoUrl').value = 'Supreme Subh';
+    }
+
+    // ✅ Add floating elements (notes + bubbles)
+    function createFloatingElements() {
+      const container = document.querySelector('.floating-elements');
+
+      // 🎵 Floating notes
+      for (let i = 0; i < 8; i++) {
+        const note = document.createElement('div');
+        note.className = 'floating-element note';
+        note.style.top = Math.random() * 100 + '%';
+        note.style.left = Math.random() * 100 + '%';
+        note.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(note);
+      }
+
+      // 💭 Floating bubbles
+      for (let i = 0; i < 8; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'floating-element bubble';
+        bubble.style.top = Math.random() * 100 + '%';
+        bubble.style.left = Math.random() * 100 + '%';
+        bubble.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(bubble);
+      }
+    }
+
+    createFloatingElements();
+  });
+</script>
+</body>
+</html>
