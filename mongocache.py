@@ -16,7 +16,7 @@ from pymongo import MongoClient, ASCENDING, errors
 from typing import Optional, Dict, List
 from datetime import datetime
 
-MONGO_URL = "mongodb+srv://INNOMUSIC:STRANGER@innomusic.3sbcx.mongodb.net/?retryWrites=true&w=majority&appName=INNOMUSIC"
+MONGO_URL = "mongodb+srv://vishalpandeynkp:Bal6Y6FZeQeoAoqV@cluster0.dzgwt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 MONGO_DB = "yt_cache"
 MONGO_COLL = "files"
 
