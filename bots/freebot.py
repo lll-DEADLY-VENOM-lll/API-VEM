@@ -4,22 +4,28 @@ import logging
 from datetime import datetime, timedelta
 from uuid import uuid4
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # ================= CONFIGURATION =================
-# My.telegram.org se API_ID aur API_HASH lein
-API_ID = "28795512"  # <--- Replace with your API ID
-API_HASH = "c17e4eb6d994c9892b8a8b6bfea4042a"  # <--- Replace with your API Hash
-BOT_TOKEN = "8574015536:AAGhHfZ_qu12YSjW9mbTEtCLpxnymhA556M"  # <--- Replace with your Bot Token
+# Aapke provided credentials yahan hain
+API_ID = 28795512  
+API_HASH = "c17e4eb6d994c9892b8a8b6bfea4042a"  
+BOT_TOKEN = "8574015536:AAGhHfZ_qu12YSjW9mbTEtCLpxnymhA556M"  
 
-ADMIN_IDS = ["8302503314"]  # <--- Admin IDs
+# Admin ID list (Integers)
+ADMIN_IDS = [8302503314]  
 API_KEYS_FILE = "api_keys.json"
 # =================================================
 
 # Logging Setup
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
-app = Client("StrangerApiBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+app = Client(
+    "StrangerApiBot", 
+    api_id=API_ID, 
+    api_hash=API_HASH, 
+    bot_token=BOT_TOKEN
+)
 
 # -------------------------------------------------
 # DATABASE FUNCTIONS
@@ -38,7 +44,7 @@ def save_api_keys(keys):
         json.dump(keys, f, indent=4)
 
 # -------------------------------------------------
-# STYLING & CONSTANTS
+# UI STYLING & BUTTONS
 # -------------------------------------------------
 HEADER_PIC = "https://files.catbox.moe/yoazrb.jpg"
 LINE = "<b>━━━━━━━━━━━━━━━━━━━━━━━━━━</b>"
@@ -54,8 +60,9 @@ def get_main_buttons():
     ])
 
 # -------------------------------------------------
-# START COMMAND
+# USER COMMANDS
 # -------------------------------------------------
+
 @app.on_message(filters.command("start"))
 async def start_handler(client, message):
     user = message.from_user
@@ -80,9 +87,6 @@ async def start_handler(client, message):
         parse_mode=enums.ParseMode.HTML
     )
 
-# -------------------------------------------------
-# FREE KEY GENERATION
-# -------------------------------------------------
 @app.on_message(filters.command("free"))
 async def free_key_handler(client, message):
     user_id = message.from_user.id
@@ -139,11 +143,11 @@ async def admin_stats(client, message):
     active = sum(1 for k in keys if datetime.fromisoformat(k["valid_until"]) > now)
     
     await message.reply_text(
-        f"<b>📊 sʏsᴛᴇᴍ sᴛᴀᴛɪsᴛɪᴄs</b>\n"
+        f"<b>📊 ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ</b>\n"
         f"{LINE}\n"
-        f"<b>👥 ᴛᴏᴛᴀʟ ᴜsᴇʀs:</b> {len(keys)}\n"
-        f"<b>🟢 ᴀᴄᴛɪᴠᴇ ᴋᴇʏs:</b> {active}\n"
-        f"<b>🔴 ᴇxᴘɪʀᴇᴅ ᴋᴇʏs:</b> {len(keys) - active}\n"
+        f"<b>👥 ᴛᴏᴛᴀʟ ᴜsᴇʀs:</b> <code>{len(keys)}</code>\n"
+        f"<b>🟢 ᴀᴄᴛɪᴠᴇ ᴋᴇʏs:</b> <code>{active}</code>\n"
+        f"<b>🔴 ᴇxᴘɪʀᴇᴅ ᴋᴇʏs:</b> <code>{len(keys) - active}</code>\n"
         f"{LINE}",
         parse_mode=enums.ParseMode.HTML
     )
@@ -152,10 +156,9 @@ async def admin_stats(client, message):
 async def all_keys_admin(client, message):
     keys = load_api_keys()
     if not keys:
-        return await message.reply_text("❌ No keys found.")
+        return await message.reply_text("<b>❌ No keys found in database.</b>")
 
-    text = "<b>🔑 ʟɪsᴛ ᴏғ ᴀᴘɪ ᴋᴇʏs</b>\n" + LINE + "\n"
-    # Showing last 15 keys for brevity
+    text = "<b>🔑 ʟɪsᴛ ᴏғ ᴀᴘɪ ᴋᴇʏs (ʟᴀᴛᴇsᴛ 𝟷𝟻)</b>\n" + LINE + "\n"
     for k in keys[-15:]:
         status = "🟢" if datetime.fromisoformat(k["valid_until"]) > datetime.utcnow() else "🔴"
         text += f"{status} <code>{k['key']}</code> | ID: <code>{k['user_id']}</code>\n"
@@ -165,17 +168,17 @@ async def all_keys_admin(client, message):
 @app.on_message(filters.command("delkey") & filters.user(ADMIN_IDS))
 async def delete_key_admin(client, message):
     if len(message.command) < 2:
-        return await message.reply_text("<b>Usage:</b> /delkey [KEY]")
+        return await message.reply_text("<b>❌ Usage:</b> /delkey [API_KEY]")
     
     target = message.command[1]
     keys = load_api_keys()
     new_keys = [k for k in keys if k["key"] != target]
     
     if len(keys) == len(new_keys):
-        await message.reply_text("<b>❌ ᴋᴇʏ ɴᴏᴛ ғᴏᴜɴᴅ!</b>")
+        await message.reply_text("<b>❌ ᴋᴇʏ ɴᴏᴛ ғᴏᴜɴᴅ ɪɴ ᴅᴀᴛᴀʙᴀsᴇ!</b>")
     else:
         save_api_keys(new_keys)
-        await message.reply_text(f"<b>✅ ᴋᴇʏ ᴅᴇʟᴇᴛᴇᴅ:</b> <code>{target}</code>")
+        await message.reply_text(f"<b>✅ sᴜᴄᴄᴇssғᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ:</b>\n<code>{target}</code>")
 
 @app.on_message(filters.command("delallexpired") & filters.user(ADMIN_IDS))
 async def clean_expired_admin(client, message):
@@ -186,13 +189,19 @@ async def clean_expired_admin(client, message):
     deleted_count = len(keys) - len(filtered)
     save_api_keys(filtered)
     
-    await message.reply_text(f"<b>🧹 ᴄʟᴇᴀɴᴜᴘ ᴅᴏɴᴇ!</b>\n{LINE}\nʀᴇᴍᴏᴠᴇᴅ <code>{deleted_count}</code> ᴇxᴘɪʀᴇᴅ ᴋᴇʏs.")
+    await message.reply_text(
+        f"<b>🧹 ᴄʟᴇᴀɴᴜᴘ ᴄᴏᴍᴘʟᴇᴛᴇᴅ!</b>\n"
+        f"{LINE}\n"
+        f"<b>🗑️ ʀᴇᴍᴏᴠᴇᴅ:</b> <code>{deleted_count}</code> ᴇxᴘɪʀᴇᴅ ᴋᴇʏs.\n"
+        f"<b>🟢 ʀᴇᴍᴀɪɴɪɴɢ:</b> <code>{len(filtered)}</code> ᴀᴄᴛɪᴠᴇ ᴋᴇʏs."
+    )
 
 # -------------------------------------------------
 # BOT EXECUTION
 # -------------------------------------------------
 if __name__ == "__main__":
-    print("----------------------------")
-    print("STRANGER API BOT IS STARTING")
-    print("----------------------------")
+    print("---------------------------------------")
+    print("  STRANGER API BOT STARTED SUCCESSFULLY")
+    print("  ADMIN ID: 8302503314")
+    print("---------------------------------------")
     app.run()
