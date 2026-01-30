@@ -1,0 +1,127 @@
+import json
+import os
+from datetime import datetime, timedelta
+from uuid import uuid4
+
+API_KEYS_FILE = "api_keys.json"
+DEFAULT_API_KEY = "stranger"
+
+class APIKeyManager:
+    def __init__(self):
+        self.api_keys = self.load_api_keys()
+
+    def load_api_keys(self):
+        if os.path.exists(API_KEYS_FILE):
+            try:
+                with open(API_KEYS_FILE, "r") as f:
+                    content = f.read().strip()
+                    if content:
+                        return json.loads(content)
+            except Exception as e:
+                print(f"[ERROR] Failed to load API keys: {e}")
+        # Default key if none exist
+        return [{
+            "id": str(uuid4()),
+            "key": DEFAULT_API_KEY,
+            "name": "Default",
+            "created_at": datetime.utcnow().isoformat(),
+            "valid_until": (datetime.utcnow() + timedelta(days=9999)).isoformat(),
+            "daily_limit": 10000,
+            "is_admin": True,
+            "count": 0
+        }]
+
+    def save_api_keys(self):
+        try:
+            with open(API_KEYS_FILE, "w") as f:
+                json.dump(self.api_keys, f, indent=2)
+        except Exception as e:
+            print(f"[ERROR] Failed to save API keys: {e}")
+
+    def check_key_valid(self, key):
+        matched = next((k for k in self.api_keys if k["key"] == key), None)
+        if not matched:
+            return False, "Invalid API Key"
+        if datetime.fromisoformat(matched["valid_until"]) < datetime.utcnow():
+            return False, "API Key expired"
+        return True, matched
+
+    def check_daily_limit(self, key, logs_db):
+        now = datetime.utcnow()
+        today_str = now.strftime("%Y-%m-%d")
+        matched = next((k for k in self.api_keys if k["key"] == key), None)
+        if not matched:
+            return False, "Invalid API Key"
+        count_today = sum(1 for l in logs_db if l["api_key"] == key and l["timestamp"].startswith(today_str))
+        if count_today >= matched["daily_limit"]:
+            return False, "API Key daily limit reached"
+        return True, None
+
+    def increment_key_count(self, key):
+        matched = next((k for k in self.api_keys if k["key"] == key), None)
+        if matched:
+            matched["count"] = matched.get("count", 0) + 1
+            self.save_api_keys()
+
+    def create_free_key(self, days_valid=7, daily_limit=200):
+        now = datetime.utcnow()
+        key = str(uuid4()).replace("-", "")[:32]
+        new_key = {
+            "id": str(uuid4()),
+            "key": key,
+            "name": "Free User",
+            "created_at": now.isoformat(),
+            "valid_until": (now + timedelta(days=days_valid)).isoformat(),
+            "daily_limit": daily_limit,
+            "is_admin": False,
+            "count": 0
+        }
+        self.api_keys.append(new_key)
+        self.save_api_keys()
+        return new_key
+
+    def revoke_key(self, key_id):
+        original_len = len(self.api_keys)
+        self.api_keys = [k for k in self.api_keys if k["id"] != key_id]
+        if len(self.api_keys) < original_len:
+            self.save_api_keys()
+            return True
+        return False
+
+
+# -------------------
+# Admin Dashboard Example
+# -------------------
+
+def get_all_keys_for_dashboard(api_key_manager):
+    now = datetime.utcnow()
+    valid_keys = [
+        k for k in api_key_manager.api_keys
+        if datetime.fromisoformat(k["valid_until"]) > now
+    ]
+    admins = [k for k in valid_keys if k.get("is_admin", False)]
+    free_users = [k for k in valid_keys if not k.get("is_admin", False)]
+
+    return {
+        "admins": admins,
+        "free_users": free_users,
+    }
+
+def print_dashboard(api_key_manager):
+    dashboard_data = get_all_keys_for_dashboard(api_key_manager)
+
+    print("=== Admin API Keys ===")
+    for k in dashboard_data["admins"]:
+        print(f"- Key: {k['key']}")
+        print(f"  Name: {k['name']}")
+        print(f"  Valid Until: {k['valid_until']}")
+        print(f"  Daily Limit: {k['daily_limit']}")
+        print(f"  Requests Made: {k.get('count', 0)}\n")
+
+    print("=== Free User API Keys ===")
+    for k in dashboard_data["free_users"]:
+        print(f"- Key: {k['key']}")
+        print(f"  Name: {k['name']}")
+        print(f"  Valid Until: {k['valid_until']}")
+        print(f"  Daily Limit: {k['daily_limit']}")
+        print(f"  Requests Made: {k.get('count', 0)}\n")
