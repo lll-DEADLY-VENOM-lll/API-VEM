@@ -48,17 +48,17 @@ def get_user_ip(user_id):
 # ---------------------------
 MAIN_BUTTONS = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("📢 sᴜᴘᴘᴏʀᴛ", url="https://t.me/StrangerYTApi"),
-        InlineKeyboardButton("📡 ᴜᴘᴅᴀᴛᴇs", url="https://t.me/StrangerApi")
+        InlineKeyboardButton("📢 sᴜᴘᴘᴏʀᴛ", url="https://t.me/NOBITA_SUPPORT"),
+        InlineKeyboardButton("📡 ᴜᴘᴅᴀᴛᴇs", url="https://t.me/about_deadly_venom")
     ],
     [
-        InlineKeyboardButton("👨‍💻 ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/AmShashank")
+        InlineKeyboardButton("👨‍💻 ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/ll_DEADLY_VENOM_ll")
     ]
 ])
 
 PREMIUM_BUTTONS = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("💎 ɢᴇᴛ ᴘʀᴇᴍɪᴜᴍ", url="https://t.me/AmShashank")
+        InlineKeyboardButton("💎 ɢᴇᴛ ᴘʀᴇᴍɪᴜᴍ", url="https://t.me/ll_DEADLY_VENOM_ll")
     ]
 ])
 
